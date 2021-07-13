@@ -65,11 +65,11 @@ function checkAgent {
       if [[ $OS == "CentOS Linux" ]]; then
         echo "The agent can be removed with 'sudo yum remove do-agent' "
       elif [[ $OS == "Ubuntu" ]]; then
-        echo "The agent can be removed with 'sudo apt-get purge do-agent' "
+        echo "The agent can be removed with 'sudo yum purge do-agent' "
       fi
   else
     echo -en "\e[32m[PASS]\e[0m DigitalOcean Monitoring agent was not found\n"
-    ((PASS++)) 
+    ((PASS++))
   fi
 }
 
@@ -81,7 +81,7 @@ function checkLogs {
       echo -en "\e[93m[WARN]\e[0m Log archive ${f} found\n"
       ((WARN++))
       if [[ $STATUS != 2 ]]; then
-        
+
           STATUS=1
       fi
     done
@@ -90,7 +90,7 @@ function checkLogs {
       echo -en "\e[93m[WARN]\e[0m Log archive ${f} found\n"
       ((WARN++))
       if [[ $STATUS != 2 ]]; then
-        
+
           STATUS=1
       fi
     done
@@ -100,7 +100,7 @@ function checkLogs {
           echo -en "\e[93m[WARN]\e[0m un-cleared log file, ${f} found\n"
           ((WARN++))
           if [[ $STATUS != 2 ]]; then
-        
+
           STATUS=1
       fi
       fi
@@ -133,7 +133,7 @@ function checkRoot {
                     for key in ${uhome}/.ssh/*
                         do
                              if  [ "${key}" == "${uhome}/.ssh/authorized_keys" ]; then
-                            
+
                                 if [ "$( cat "${key}" | wc -c)" -gt 50 ]; then
                                     echo -en "\e[41m[FAIL]\e[0m User \e[1m${user}\e[0m has a populated authorized_keys file in \e[93m${key}\e[0m\n"
                                     akey=$(cat ${key})
@@ -143,13 +143,13 @@ function checkRoot {
                                     ((FAIL++))
                                     STATUS=2
                                 fi
-                            
+
                             elif  [ "${key}" != "${uhome}/.ssh/known_hosts" ]; then
-                                
+
                                  echo -en "\e[93m[WARN]\e[0m User \e[1m${user}\e[0m has a file in their .ssh directory at \e[93m${key}\e[0m\n"
                                     ((WARN++))
                                     if [[ $STATUS != 2 ]]; then
-                                      
+
                                         STATUS=1
                                     fi
                             else
@@ -157,7 +157,7 @@ function checkRoot {
                                     echo -en "\e[93m[WARN]\e[0m User \e[1m${user}\e[0m has a populated known_hosts file in \e[93m${key}\e[0m\n"
                                     ((WARN++))
                                     if [[ $STATUS != 2 ]]; then
-                                      
+
                                         STATUS=1
                                     fi
                                 fi
@@ -165,26 +165,26 @@ function checkRoot {
                         done
                 else
                     echo -en "\e[32m[ OK ]\e[0m User \e[1m${user}\e[0m has no SSH keys present\n"
-                    
+
                 fi
             else
                 echo -en "\e[32m[ OK ]\e[0m User \e[1m${user}\e[0m does not have an .ssh directory\n"
             fi
              if [ -f /root/.bash_history ];then
-        
+
                       BH_S=$( cat /root/.bash_history | wc -c)
-                  
+
                       if [[ $BH_S -lt 200 ]]; then
                           echo -en "\e[32m[PASS]\e[0m ${user}'s Bash History appears to have been cleared\n"
                           ((PASS++))
                       else
                           echo -en "\e[41m[FAIL]\e[0m ${user}'s Bash History should be cleared to prevent sensitive information from leaking\n"
                           ((FAIL++))
-                            
+
                               STATUS=2
-                          
+
                       fi
-                      
+
                       return 1;
                   else
                       echo -en "\e[32m[PASS]\e[0m The Root User's Bash History is not present\n"
@@ -192,7 +192,7 @@ function checkRoot {
                   fi
         else
             echo -en "\e[32m[ OK ]\e[0m User \e[1m${user}\e[0m does not have a directory in /home\n"
-            
+
         fi
         echo -en "\n\n"
     return 1
@@ -202,7 +202,7 @@ function checkUsers {
     # Check each user-created account
     for user in $(awk -F: '$3 >= 1000 && $1 != "nobody" {print $1}' /etc/passwd;)
     do
-      
+
       # Skip some other non-user system accounts
       if [[ $user == "centos" ]]; then
         :
@@ -224,10 +224,10 @@ function checkUsers {
               fi
           fi
         done
-      
-      
-      
-       
+
+
+
+
         #echo "User Found: ${user}"
         uhome="/home/${user}"
         if [ -d "${uhome}/" ]; then
@@ -235,9 +235,9 @@ function checkUsers {
                 if  ls "${uhome}/.ssh/*"> /dev/null 2>&1; then
                     for key in ${uhome}/.ssh/*
                         do
-                         
+
                             if  [ "${key}" == "${uhome}/.ssh/authorized_keys" ]; then
-                            
+
                                 if [ "$( cat "${key}" | wc -c)" -gt 50 ]; then
                                     echo -en "\e[41m[FAIL]\e[0m User \e[1m${user}\e[0m has a populated authorized_keys file in \e[93m${key}\e[0m\n"
                                     akey=$(cat ${key})
@@ -248,13 +248,13 @@ function checkUsers {
                                     STATUS=2
                                 fi
                             elif  [ "${key}" != "${uhome}/.ssh/known_hosts" ]; then
-                                
+
                                  echo -en "\e[93m[WARN]\e[0m User \e[1m${user}\e[0m has a file in their .ssh directory named \e[93m${key}\e[0m\n"
                                  ((WARN++))
                                  if [[ $STATUS != 2 ]]; then
                                         STATUS=1
                                     fi
-                            
+
                             else
                                 if [ "$( cat "${key}" | wc -c)" -gt 50 ]; then
                                     echo -en "\e[93m[WARN]\e[0m User \e[1m${user}\e[0m has a known_hosts file in \e[93m${key}\e[0m\n"
@@ -264,8 +264,8 @@ function checkUsers {
                                     fi
                                 fi
                             fi
-                            
-                           
+
+
                         done
                 else
                     echo -en "\e[32m[ OK ]\e[0m User \e[1m${user}\e[0m has no SSH keys present\n"
@@ -276,11 +276,11 @@ function checkUsers {
         else
             echo -en "\e[32m[ OK ]\e[0m User \e[1m${user}\e[0m does not have a directory in /home\n"
         fi
-        
+
          # Check for an uncleared .bash_history for this user
               if [ -f "${uhome}/.bash_history" ]; then
                             BH_S=$( cat "${uhome}/.bash_history" | wc -c )
-    
+
                             if [[ $BH_S -lt 200 ]]; then
                                 echo -en "\e[32m[PASS]\e[0m ${user}'s Bash History appears to have been cleared\n"
                                 ((PASS++))
@@ -288,7 +288,7 @@ function checkUsers {
                                 echo -en "\e[41m[FAIL]\e[0m ${user}'s Bash History should be cleared to prevent sensitive information from leaking\n"
                                 ((FAIL++))
                                     STATUS=2
-                                
+
                             fi
                            echo -en "\n\n"
                          fi
@@ -296,7 +296,7 @@ function checkUsers {
     done
 }
 function checkFirewall {
-    
+
     if [[ $OS == "Ubuntu" ]]; then
       fw="ufw"
       service ufw status >/dev/null 2>&1
@@ -304,7 +304,7 @@ function checkFirewall {
       fw="firewalld"
       systemctl status firewalld >/dev/null 2>&1
     fi
-    
+
     if [ $? = 0 ]; then
         FW_VER="\e[32m[PASS]\e[0m Firewall service (${fw}) is active\n"
         ((PASS++))
@@ -315,14 +315,14 @@ function checkFirewall {
             STATUS=1
         fi
     fi
-    
+
 }
 function checkUpdates {
     if [[ $OS == "Ubuntu" ]]; then
         echo -en "\nUpdating apt package database to check for security updates, this may take a minute...\n\n"
-        apt-get -y update > /dev/null
+        yum -y update > /dev/null
         if [ -f /usr/lib/update-notifier/apt-check ]; then
-          update_count=$(/usr/lib/update-notifier/apt-check 2>&1 | cut -d ';' -f 2)  
+          update_count=$(/usr/lib/update-notifier/apt-check 2>&1 | cut -d ';' -f 2)
         else
           echo "ERROR: apt-check binary was not found. Unable to ensure security updates have been installed.  Exiting.";
           exit 1
@@ -333,7 +333,7 @@ function checkUpdates {
             echo -en
             echo -en "Here is a list of the security updates that are not installed:\n"
             sleep 2
-            apt-get upgrade -s | grep -i security
+            yum upgrade -s | grep -i security
             echo -en
             ((FAIL++))
             STATUS=2
@@ -342,7 +342,7 @@ function checkUpdates {
         fi
     elif [[ $OS == "CentOS Linux" ]]; then
         echo -en "\nChecking for available updates with yum, this may take a minute...\n\n"
-        
+
         update_count=$(yum list updates -q | grep -vc "Updated Packages")
          if [[ $update_count -gt 0 ]]; then
             echo -en "\e[41m[FAIL]\e[0m There are ${update_count} updates available for this image that have not been installed.\n"
@@ -357,10 +357,10 @@ function checkUpdates {
         exit
     fi
 
-    return 1;    
+    return 1;
 }
 function checkCloudInit {
-    
+
     if hash cloud-init 2>/dev/null; then
         CI="\e[32m[PASS]\e[0m Cloud-init is installed.\n"
         ((PASS++))
@@ -368,7 +368,7 @@ function checkCloudInit {
         CI="\e[41m[FAIL]\e[0m No valid verison of cloud-init was found.\n"
         ((FAIL++))
         STATUS=2
-    fi    
+    fi
     return 1
 }
 
@@ -393,7 +393,7 @@ if [[ $OS == "Ubuntu" ]]; then
     else
         osv=0
     fi
-    
+
 elif [[ $OS == "CentOS Linux" ]]; then
         ost=1
      if [[ $VER == "7" ]]; then
